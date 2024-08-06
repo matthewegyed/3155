@@ -29,30 +29,24 @@ def eval(expr: Expr): Either[String, Value] = expr match {
     }.map(vals => ManyVals(vals.reverse))
 
   case Plus(e1, e2) =>
-      (eval(e1), eval(e2)) match{
-        case (Right(ManyVals(vs)), Right(v))=>
-          val r= vs.map{vi=>
-            eval(Plus(vi, v)) match{
-              case Right(vr)=>vr
-              case Left(_)=>return Left("ERROR")
-            }
+    (eval(e1), eval(e2)) match {
+
+      case (Right(ManyVals(vs)), Right(v)) =>
+        val r = vs.map { vi =>
+          eval(Plus(ValueExpr(vi), ValueExpr(v))) match {
+            case Right(vr) => vr
+            case Left(_) => return Left("ERROR")
           }
-          Right(ManyVals(r))
-        case (Right(VeryHappy()), _)=>Right(VeryHappy())
-        case (_, Right(VeryHappy()))=>Right(VeryHappy())
-        case (Right(Cry()), Right(v2))=>Right(v2)
-        case (Right(v1), Right(Cry())) if v1.isInstanceOf[Happy]||v1.isInstanceOf[Stun]=>Right(Cry())
-        case (Right(v1), Right(v2)) if !v2.isInstanceOf[VeryHappy]&&!v2.isInstanceOf[Cry]=>Right(v1)
-        case _ => Left("ERROR")
-      }
-  (eval(e1), eval(e2)) match{
-      case (Right(VeryHappy), _)=>Right(VeryHappy)
-      case (_, Right(VeryHappy))=>Right(VeryHappy)
-      case (Right(Cry), Right(v2))=>Right(v2)
-      case (Right(v1), Right(Cry)) if v1.isInstanceOf[Happy.type]||v1.isInstanceOf[Stun.type]=>Right(Cry)
-      case (Right(v1), Right(v2)) if (!(v2.isInstanceOf[VeryHappy.type]) && !(v2.isInstanceOf[Cry.type]))=>Right(v1)
+        }
+        Right(ManyVals(r))
+
+      case (Right(VeryHappy), _) => Right(VeryHappy)
+      case (_, Right(VeryHappy)) => Right(VeryHappy)
+      case (Right(Cry), Right(v2)) => Right(v2)
+      case (Right(v1), Right(Cry)) if v1.isInstanceOf[Happy.type] || v1.isInstanceOf[Stun.type] => Right(Cry)
+      case (Right(v1), Right(v2)) if !v2.isInstanceOf[VeryHappy.type] && !v2.isInstanceOf[Cry.type] => Right(v1)
       case _ => Left("ERROR")
-  }
+    }
   case Not(e) => {
     eval(e) match {
       case Right(Stun) => Right(Sleepy)
