@@ -240,6 +240,7 @@ Your task is as follows::
 5. You must identify any potential cases of evaluation that the language designers failed to specify (recommend doing this while working on the above tasks)
 
 ### The following were not identified by the language designers
+* For the **`ManyExprs`** case, it is not explicitly stated in the language specification if it should evaluate to ERROR or if it should evaluate to an empty ManyVals if given an empty list of expressions. Our implementation chooses to evaluate to an empty list of values, thus implicitly defining that an empty ManyExprs is valid, since it doesn't return an error.
 * **`_YOUR_SOLUTION_HERE_`**
 
 
