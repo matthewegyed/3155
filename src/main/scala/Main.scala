@@ -20,8 +20,15 @@ def eval(expr: Expr): Either[String, Value] = expr match {
   
   case ManyExprs(exprs) => ???
 
-  case Plus(e1, e2) => ???
-  
+  case Plus(e1, e2) =>
+  (eval(e1), eval(e2)) match{
+      case (Right(VeryHappy()), _)=>Right(VeryHappy())
+      case (_, Right(VeryHappy()))=>Right(VeryHappy())
+      case (Right(Cry()), Right(v2))=>Right(v2)
+      case (Right(v1), Right(Cry())) if v1.isInstanceOf[Happy]||v1.isInstanceOf[Stun]=>Right(Cry())
+      case (Right(v1), Right(v2)) if !v2.isInstanceOf[VeryHappy]&&!v2.isInstanceOf[Cry]=>Right(v1)
+      case _ => Left("ERROR")
+  }
   case Not(e) => ???
   
 }
