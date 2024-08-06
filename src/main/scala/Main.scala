@@ -45,7 +45,24 @@ def eval(expr: Expr): Either[String, Value] = expr match {
       case (Right(v1), Right(v2)) if (!(v2.isInstanceOf[VeryHappy.type]) && !(v2.isInstanceOf[Cry.type]))=>Right(v1)
       case _ => Left("ERROR")
   }
-  case Not(e) => ???
+  case Not(e) => {
+    eval(e) match {
+      case Right(Stun) => Right(Sleepy)
+      case Right(Sleepy)=> Right(Stun)
+      case Right(Happy)=> Right(Cry)
+      case Right(VeryHappy)=> Right(Cry)
+      case Right(Cry)=> Right(VeryHappy)
+      
+      case Right(ManyVals(ls)) if (ls.size>1)=> {
+        val result = ls.tail.foldLeft[Either[String, Value]](Right(ls.head)){
+            case(Right(accumulated),current)=> eval(Plus(ValueExpr(accumulated), ValueExpr(current)))
+            case(Left("ERROR"),_) => Left("ERROR")
+          }
+        result
+      }
+      case _ => Left("ERROR")
+    }
+  }
   
 }
 
