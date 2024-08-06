@@ -30,21 +30,62 @@ def eval(expr: Expr): Either[String, Value] = expr match {
 
   case Plus(e1, e2) =>
     (eval(e1), eval(e2)) match {
-
-      case (Right(ManyVals(vs)), Right(v)) =>
-        val r = vs.map { vi =>
-          eval(Plus(ValueExpr(vi), ValueExpr(v))) match {
-            case Right(vr) => vr
-            case Left(_) => return Left("ERROR")
+      // Both are lists
+      case (Right(ManyVals(vs1)), Right(ManyVals(vs2))) =>
+        val minLength = Math.min(vs1.length, vs2.length)
+        val combined = (0 until minLength).map { i =>
+          (vs1(i), vs2(i)) match {
+            case (VeryHappy, _) | (_, VeryHappy) => VeryHappy
+            case (Cry, v) => v
+            case (v, Cry) => v
+            case (Happy, _) | (_, Happy) => Happy
+            case (Stun, Stun) => Cry
+            case _ => vs1(i)
           }
         }
-        Right(ManyVals(r))
+        val remaining = if (vs1.length > minLength) vs1.drop(minLength) else vs2.drop(minLength)
+        Right(ManyVals(combined.toList ++ remaining))
 
-      case (Right(VeryHappy), _) => Right(VeryHappy)
-      case (_, Right(VeryHappy)) => Right(VeryHappy)
-      case (Right(Cry), Right(v2)) => Right(v2)
-      case (Right(v1), Right(Cry)) if v1.isInstanceOf[Happy.type] || v1.isInstanceOf[Stun.type] => Right(Cry)
-      case (Right(v1), Right(v2)) if !v2.isInstanceOf[VeryHappy.type] && !v2.isInstanceOf[Cry.type] => Right(v1)
+      // Left is a list
+      case (Right(ManyVals(vs)), Right(v)) =>
+        val result = vs.map { vi =>
+          (vi, v) match {
+            case (VeryHappy, _) | (_, VeryHappy) => VeryHappy
+            case (Cry, v) => v
+            case (v, Cry) => v
+            case (Happy, _) | (_, Happy)=> Happy
+            case (Stun, Stun) => Cry
+            case _  => vi
+          }
+        }
+        Right(ManyVals(result))
+
+      // Right is a list
+      case (Right(v), Right(ManyVals(vs))) =>
+        val result = vs.map { vi =>
+          (v, vi) match {
+            case (VeryHappy, _) | (_, VeryHappy) => VeryHappy
+            case (Cry, v) => v
+            case (v, Cry) => v
+            case (Happy, _) | (_, Happy) => Happy
+            case (Stun, Stun) => Cry
+            case _ => v
+          }
+        }
+        Right(ManyVals(result))
+
+      // Both are single values
+      case (Right(v1), Right(v2)) =>
+        val result = (v1, v2) match {
+          case (VeryHappy, _) | (_, VeryHappy) => VeryHappy
+          case (Cry, v) => v
+          case (v, Cry) => v
+          case (Happy, _) | (_, Happy)=> Happy
+          case (Stun, Stun)=> Cry
+          case _ => v1
+        }
+        Right(result)
+
       case _ => Left("ERROR")
     }
   case Not(e) => {
