@@ -18,7 +18,15 @@ case class Not(e: Expr) extends Expr                 // !e
 def eval(expr: Expr): Either[String, Value] = expr match {
   case ValueExpr(v) => Right(v)
   
-  case ManyExprs(exprs) => ???
+  case ManyExprs(exprs) =>
+    exprs.foldLeft[Either[String, List[Value]]](Right(Nil)) {
+      case (Right(acc), expr) =>
+        eval(expr) match {
+          case Right(value) => Right(value :: acc)
+          case Left(err) => Left(err)
+        }
+      case (left @ Left(_), _) => left
+    }.map(vals => ManyVals(vals.reverse))
 
   case Plus(e1, e2) =>
       (eval(e1), eval(e2)) match{
