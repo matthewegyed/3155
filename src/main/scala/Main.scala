@@ -101,12 +101,13 @@ def eval(expr: Expr): Either[String, Value] = expr match {
             case(Right(accumulated),current)=> eval(Plus(ValueExpr(accumulated), ValueExpr(current)))
             case(Left("ERROR"),_) => Left("ERROR")
           }
-        result
+        result match {
+          case Right(value) => eval(Not(ValueExpr(value)))
+          case Left(error) => Left(error)
+        }
       }
       case _ => Left("ERROR")
     }
   
 }
-
-
 }

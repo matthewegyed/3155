@@ -74,10 +74,11 @@ class MySuite extends munit.FunSuite {
   }
 
   // Test specific Not logic with ManyExprs
-  test("Not(Stun, Sleepy, Happy, Cry) -> Happy") {
+  test("Not(Stun, Sleepy, Happy, Cry) -> Cry") {
     // Plus(Stun,Sleepy) = Stun
     // Plus(Stun,Happy) -> Happy
     // Plus(happy,cry) -> Happy
+    // Not(Happy) -> Cry
     val expr = Not(
       ManyExprs(List(
         ValueExpr(Stun),
@@ -87,7 +88,7 @@ class MySuite extends munit.FunSuite {
       ))
     )
     val obtained = eval(expr)
-    val expected = Right(Happy)
+    val expected = Right(Cry)
 
     assertEquals(obtained, expected)
   }
@@ -138,7 +139,7 @@ class MySuite extends munit.FunSuite {
     // -> ManyVals(List(Cry, Sleepy, Happy, Stun))
   
     // Evaluate Not on ManyVals
-    // Not(ManyVals(List(Cry, Sleepy, Happy, Stun))) -> Happy
+    // Not(ManyVals(List(Cry, Sleepy, Happy, Stun))) -> Cry
 
     // ManyExprs(List(ValueExpr(VeryHappy), ValueExpr(Cry), ValueExpr(Sleepy)))
     // -> ManyVals(List(VeryHappy, Cry, Sleepy))
@@ -146,12 +147,12 @@ class MySuite extends munit.FunSuite {
     // Combine results with Plus
     // Plus(Happy, ManyVals(List(VeryHappy, Cry, Sleepy)))
     // Evaluate Plus for each combination of values:
-    // Plus(Happy, VeryHappy) -> VeryHappy
-    // Plus(Happy, Cry) -> Happy
-    // Plus(Happy, Sleepy) -> Happy
+    // Plus(Cry, VeryHappy) -> VeryHappy
+    // Plus(Cry, Cry) -> Cry
+    // Plus(Cry, Sleepy) -> Sleepy
 
     val obtained = eval(expr)
-    val expected = Right(ManyVals(List(VeryHappy, Happy, Happy)))
+    val expected = Right(ManyVals(List(VeryHappy, Cry, Sleepy)))
   
     assertEquals(obtained, expected)
   }
