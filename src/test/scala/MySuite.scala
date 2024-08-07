@@ -74,7 +74,7 @@ class MySuite extends munit.FunSuite {
   }
 
   // Test specific Not logic with ManyExprs
-  test("Not(Stun, Sleepy, Happy, Cry) -> (Sleepy, Stun, Cry, VeryHappy)") {
+  test("Not(Stun, Sleepy, Happy, Cry) -> Happy") {
     val expr = Not(
       ManyExprs(List(
         ValueExpr(Stun),
@@ -86,17 +86,10 @@ class MySuite extends munit.FunSuite {
 
     // Evaluate ManyExprs
     // ManyExprs(List(ValueExpr(Stun), ValueExpr(Sleepy), ValueExpr(Happy), ValueExpr(Cry)))
-    // -> ManyVals(List(Stun, Sleepy, Happy, Cry))
-
-    // Evaluate Not on each value
-    // Not(Stun) -> Sleepy
-    // Not(Sleepy) -> Stun
-    // Not(Happy) -> Cry
-    // Not(Cry) -> VeryHappy
-    // Combine results by applying Not to the list sequentially
+    // -> Happy
 
     val obtained = eval(expr)
-    val expected = Right(ManyVals(List(Sleepy, Stun, Cry, VeryHappy)))
+    val expected = Right(Happy)
 
     assertEquals(obtained, expected)
   }
@@ -148,48 +141,26 @@ class MySuite extends munit.FunSuite {
     // Evaluate the first ManyExprs
     // ManyExprs(List(ValueExpr(Cry), ValueExpr(Sleepy), ValueExpr(Happy), ValueExpr(Stun)))
     // This evaluates to: ManyVals(List(Cry, Sleepy, Happy, Stun))
-    val manyExprs1Result = eval(ManyExprs(List(
-      ValueExpr(Cry),
-      ValueExpr(Sleepy),
-      ValueExpr(Happy),
-      ValueExpr(Stun)
-    )))
   
     // Evaluate Not on ManyVals
-    // Not(ManyVals(List(Cry, Sleepy, Happy, Stun)))
-    // Not(Cry) -> VeryHappy
-    // Not(Sleepy) -> Stun
-    // Not(Happy) -> Cry
-    // Not(Stun) -> Sleepy
-    // This evaluates to: ManyVals(List(VeryHappy, Stun, Cry, Sleepy))
-    val notResult = eval(Not(ManyExprs(List(
-      ValueExpr(VeryHappy),
-      ValueExpr(Stun),
-      ValueExpr(Cry),
-      ValueExpr(Sleepy)
-    ))))
+    // Not(ManyVals(List(Cry, Sleepy, Happy, Stun))) -> Happy
+
 
     // Evaluate the second ManyExprs
     // ManyExprs(List(ValueExpr(VeryHappy), ValueExpr(Cry), ValueExpr(Sleepy)))
     // This evaluates to: ManyVals(List(VeryHappy, Cry, Sleepy))
-    val manyExprs2Result = eval(ManyExprs(List(
-      ValueExpr(VeryHappy),
-      ValueExpr(Cry),
-      ValueExpr(Sleepy),
-    )))
 
     // Combine results with Plus
-    // Plus(ManyVals(List(VeryHappy, Stun, Cry, Sleepy)), ManyVals(List(VeryHappy, Cry, Sleepy)))
+    // Plus(Happy, ManyVals(List(VeryHappy, Cry, Sleepy)))
     // Evaluate Plus for each combination of values:
-    // Plus(VeryHappy, VeryHappy) -> VeryHappy
-    // Plus(Stun, Cry) -> Stun
-    // Plus(Cry, Sleepy) -> Sleepy
-    // Plus(Sleepy, _) -> Sleepy
-    // This evaluates to: ManyVals(List(VeryHappy, Stun, Sleepy, Sleepy))
+    // Plus(Happy, VeryHappy) -> VeryHappy
+    // Plus(Happy, Cry) -> Happy
+    // Plus(Happy, Sleepy) -> Happy
+
     val obtained = eval(expr)
 
     // Expected result
-    val expected = Right(ManyVals(List(VeryHappy, Stun, Sleepy, Sleepy)))
+    val expected = Right(ManyVals(List(VeryHappy, Happy, Happy)))
   
     // Assert the obtained result matches the expected result
     assertEquals(obtained, expected)

@@ -96,23 +96,17 @@ def eval(expr: Expr): Either[String, Value] = expr match {
       case Right(VeryHappy)=> Right(Cry)
       case Right(Cry)=> Right(VeryHappy)
       
-      case Right(ManyVals(ls)) if ls.size > 1 => {
-      // Apply Not to each value in the list
-        val result = ls.foldLeft[Either[String, List[Value]]](Right(Nil)) {
-          case (Right(accumulated), value) =>
-            eval(Not(ValueExpr(value))) match {
-            case Right(v) => Right(accumulated :+ v) 
-            case Left(error) => Left(error) 
+      case Right(ManyVals(ls)) if (ls.size>1)=> {
+        val result = ls.tail.foldLeft[Either[String, Value]](Right(ls.head)){
+            case(Right(accumulated),current)=> eval(Plus(ValueExpr(accumulated), ValueExpr(current)))
+            case(Left("ERROR"),_) => Left("ERROR")
           }
-          case (Left(error), _) => Left(error)
-        }
-        result.map(vs => ManyVals(vs)) 
+        result
       }
-
       case _ => Left("ERROR")
     }
-  }
   
 }
 
 
+}
