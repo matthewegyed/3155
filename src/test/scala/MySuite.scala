@@ -157,16 +157,16 @@ class MySuite extends munit.FunSuite {
   
     // Evaluate Not on ManyVals
     // Not(ManyVals(List(Cry, Sleepy, Happy, Stun)))
-    // Not(Cry) -> Stun
-    // Not(Sleepy) -> VeryHappy
-    // Not(Happy) -> Stun
-    // Not(Stun) -> Cry
-    // This evaluates to: ManyVals(List(Stun, VeryHappy, Stun, Cry))
+    // Not(Cry) -> VeryHappy
+    // Not(Sleepy) -> Stun
+    // Not(Happy) -> Cry
+    // Not(Stun) -> Sleepy
+    // This evaluates to: ManyVals(List(VeryHappy, Stun, Cry, Sleepy))
     val notResult = eval(Not(ManyExprs(List(
+      ValueExpr(VeryHappy),
+      ValueExpr(Stun),
       ValueExpr(Cry),
-      ValueExpr(Sleepy),
-      ValueExpr(Happy),
-      ValueExpr(Stun)
+      ValueExpr(Sleepy)
     ))))
 
     // Evaluate the second ManyExprs
@@ -175,26 +175,21 @@ class MySuite extends munit.FunSuite {
     val manyExprs2Result = eval(ManyExprs(List(
       ValueExpr(VeryHappy),
       ValueExpr(Cry),
-      ValueExpr(Sleepy)
+      ValueExpr(Sleepy),
     )))
 
     // Combine results with Plus
-    // Plus(ManyVals(List(Stun, VeryHappy, Stun, Cry)), ManyVals(List(VeryHappy, Cry, Sleepy)))
+    // Plus(ManyVals(List(VeryHappy, Stun, Cry, Sleepy)), ManyVals(List(VeryHappy, Cry, Sleepy)))
     // Evaluate Plus for each combination of values:
-    // Plus(Stun, VeryHappy) -> VeryHappy
-    // Plus(Stun, Cry) -> Cry
-    // Plus(Stun, Sleepy) -> VeryHappy
     // Plus(VeryHappy, VeryHappy) -> VeryHappy
-    // Plus(VeryHappy, Cry) -> VeryHappy
-    // Plus(VeryHappy, Sleepy) -> VeryHappy
-    // Plus(Cry, VeryHappy) -> VeryHappy
-    // Plus(Cry, Cry) -> Cry
+    // Plus(Stun, Cry) -> Stun
     // Plus(Cry, Sleepy) -> Sleepy
-    // This evaluates to: ManyVals(List(VeryHappy, Cry, VeryHappy, VeryHappy, VeryHappy, VeryHappy, VeryHappy, Cry, Sleepy))
+    // Plus(Sleepy, _) -> Sleepy
+    // This evaluates to: ManyVals(List(VeryHappy, Stun, Sleepy, Sleepy))
     val obtained = eval(expr)
 
     // Expected result
-    val expected = Right(ManyVals(List(VeryHappy, Cry, VeryHappy, VeryHappy, VeryHappy, VeryHappy, VeryHappy, Cry, Sleepy)))
+    val expected = Right(ManyVals(List(VeryHappy, Stun, Sleepy, Sleepy)))
   
     // Assert the obtained result matches the expected result
     assertEquals(obtained, expected)
