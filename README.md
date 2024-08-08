@@ -241,7 +241,7 @@ Your task is as follows::
 
 ### The following were not identified by the language designers
 * For the **`ManyExprs`** case, it is not explicitly stated in the language specification if it should evaluate to ERROR or if it should evaluate to an empty ManyVals if given an empty list of expressions. Our implementation chooses to evaluate to an empty list of values, thus implicitly defining that an empty ManyExprs is valid, since it doesn't return an error.
-* **`_YOUR_SOLUTION_HERE_`**
+* For the **`Plus`** case, the provided inference rules do not explicitly define how to handle addition between two ManyVals, only between two single values or a single value and a ManyVals. Our current implementation combines the lists, adding corresponding pairs of values together, and appending remaining elements if one list is longer than the other.
 
 
 ## STRETCH: Language Testing
