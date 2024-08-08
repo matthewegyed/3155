@@ -156,6 +156,14 @@ class MySuite extends munit.FunSuite {
   
     assertEquals(obtained, expected)
   }
-
+  
+  // test for eval-plus-many-values-error
+  test("Plus with ManyVals should propagate ERROR") {
+    val errorExpr = Not(ManyExprs(List())) // This will evaluate to Left("ERROR")
+    val expr = Plus(ManyExprs(List(ValueExpr(Cry), errorExpr, ValueExpr(Happy))), ValueExpr(Stun))
+    val obtained = eval(expr)
+    val expected = Left("ERROR")
+    assertEquals(obtained, expected)
+  }
 
 }
